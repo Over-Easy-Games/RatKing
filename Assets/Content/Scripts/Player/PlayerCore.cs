@@ -50,6 +50,7 @@ namespace Content.Scripts.Player
             if (Input.GetKeyDown(KeyCode.E)){
                 _playerRatPack.RemoveRat();
             }
+            
         }
 
         private void FixedUpdate()
