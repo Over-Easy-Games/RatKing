@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Cinemachine.Utility;
 using UnityEditor.UIElements;
 using UnityEngine;
 using Content.Scripts.Utilities;
@@ -18,6 +19,8 @@ namespace Content.Scripts.Player
 
         [SerializeField, Range(0f, 1f)] private float decelerationRate = 0.3f;
 
+        [SerializeField] private Transform _cameraTransform;
+        
         private void Awake()
         {
             if (TryGetComponent<Rigidbody>(out Rigidbody rb))
@@ -26,9 +29,13 @@ namespace Content.Scripts.Player
 
         public void Tick(Vector2 moveInput)
         {
-            Vector3 targetSpeed = new Vector3(moveInput.x, 0f, moveInput.y) * speed;
+            Vector3 forwardMovement = _cameraTransform.forward.ProjectOntoPlane( Vector3.up ).normalized * moveInput.y * speed;
+            Vector3 rightMovement = _cameraTransform.right.ProjectOntoPlane( Vector3.up ).normalized * moveInput.x * speed;
+            Vector3 targetSpeed = forwardMovement + rightMovement;
+            
             float rate = (moveInput == Vector2.zero) ? decelerationRate : accelerationRate;
-            Vector3 deltaVelocity = (targetSpeed - _rigidbody.velocity) * rate;
+            
+            Vector3 deltaVelocity = ( targetSpeed - _rigidbody.velocity) * rate;
             _rigidbody.AddForce(deltaVelocity, ForceMode.VelocityChange);
         }
     }

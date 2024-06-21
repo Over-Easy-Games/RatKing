@@ -44,10 +44,10 @@ namespace Content.Scripts.Player
             _moveInput = _moveInput.normalized * _moveInput.magnitude;
             
             // Temp set up to debug growing and shrinking physics collider.
-            if (Input.GetKeyDown(KeyCode.Q)){
+            if (Input.GetKeyDown(KeyCode.E)){
                 _playerRatPack.AddRat();
             }
-            if (Input.GetKeyDown(KeyCode.E)){
+            if (Input.GetKeyDown(KeyCode.Q)){
                 _playerRatPack.RemoveRat();
             }
             
