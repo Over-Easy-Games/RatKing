@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Content.Scripts.Components;
 using UnityEditor.UIElements;
 using UnityEngine;
 using Content.Scripts.Utilities;
@@ -11,6 +12,7 @@ namespace Content.Scripts.Player
     {
         private PlayerMovement _playerMovement;
         private PlayerRatPack _playerRatPack;
+        private HealthComponent _healthComponent;
         
         private Vector2 _moveInput;
 
@@ -26,11 +28,26 @@ namespace Content.Scripts.Player
             if (TryGetComponent<PlayerRatPack>(out PlayerRatPack playerRatPack))
                 _playerRatPack = playerRatPack;
             _playerRatPack.OnRatsChanged += PlayerRatPackOnOnRatsChanged;
+            
+            if (TryGetComponent<HealthComponent>(out HealthComponent healthComponent))
+                _healthComponent = healthComponent;
+            _healthComponent.OnHealthChanged += HealthComponentOnOnHealthChanged;
+            _healthComponent.OnHealthEmpty += HealthComponentOnOnHealthEmpty;
         }
 
         private void PlayerRatPackOnOnRatsChanged(int newRatCount)
         {
             _playerMovement.SetRatCount(newRatCount);
+        }
+
+        private void HealthComponentOnOnHealthEmpty()
+        {
+            Debug.Log("Handle what happens when health is empty.");
+        }
+
+        private void HealthComponentOnOnHealthChanged(int newHealth)
+        {
+            Debug.Log($"Health: {newHealth}");
         }
 
         void Update()
@@ -59,6 +76,14 @@ namespace Content.Scripts.Player
             }
             if (Input.GetKeyDown(KeyCode.Q)){
                 _playerRatPack.RemoveRat();
+            }
+            
+            // Temp set up to debug health.
+            if (Input.GetKeyDown(KeyCode.R)){
+                _healthComponent.AddHealth(1);
+            }
+            if (Input.GetKeyDown(KeyCode.F)){
+                _healthComponent.RemoveHealth(1);
             }
             
         }

@@ -917,6 +917,7 @@ GameObject:
   - component: {fileID: 5570392551141724298}
   - component: {fileID: 1941267936155287095}
   - component: {fileID: 1145561127790907696}
+  - component: {fileID: 1674037610690080145}
   - component: {fileID: 5952908766449588814}
   m_Layer: 0
   m_Name: PlayerPrefab
@@ -955,6 +956,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   displayRoot: {fileID: 7758905762210764854}
+  turnSpeed: 0.2
 --- !u!114 &1941267936155287095
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -986,6 +988,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   physicsCollider: {fileID: 442072834601240083}
+--- !u!114 &1674037610690080145
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7821855881386799990}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62a6ce2f8ff1a33408e1cc9804807e9c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 10
 --- !u!54 &5952908766449588814
 Rigidbody:
   m_ObjectHideFlags: 0
