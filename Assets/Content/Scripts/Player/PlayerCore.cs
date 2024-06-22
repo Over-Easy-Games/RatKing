@@ -61,7 +61,11 @@ namespace Content.Scripts.Player
 
         private void HitboxComponentOnOnHit(int damage)
         {
-            _playerRatPack.RemoveRat(damage);
+            if (damage > 0)
+                _playerRatPack.RemoveRat(damage);
+            else{
+                _playerRatPack.AddRat( Math.Abs(damage) );
+            }
         }
 
         private void FixedUpdate()
