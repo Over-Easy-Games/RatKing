@@ -14,6 +14,10 @@ namespace Content.Scripts.Player
         
         private Vector2 _moveInput;
 
+        [SerializeField]
+        private Transform displayRoot;
+        [SerializeField, Range(0f, 1f)] private float turnSpeed = 0.2f;
+        
         private void Awake()
         {
             if (TryGetComponent<PlayerMovement>(out PlayerMovement playerMovement))
@@ -56,6 +60,7 @@ namespace Content.Scripts.Player
         private void FixedUpdate()
         {
             _playerMovement.Tick( _moveInput );
+            displayRoot.rotation = Quaternion.Slerp(displayRoot.rotation, _playerMovement.PhysicsRoot.rotation, turnSpeed );
         }
     }
 }
