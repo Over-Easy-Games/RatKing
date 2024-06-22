@@ -14,12 +14,14 @@ namespace Content.Scripts.Player
 
         [SerializeField] private Transform physicsCollider;
 
+        public event Action<int> OnRatsChanged;
+        
         private int _ratCount = 0;
         public int RatCount => _ratCount;
         
         public void AddRat(int count = 1)
         {
-            _ratCount++;
+            SetRats(_ratCount + 1);
             UpdateCollider();
         }
         
@@ -27,8 +29,16 @@ namespace Content.Scripts.Player
         {
             if ( _ratCount < 0 )
                 return;
-            _ratCount--;
+            SetRats(_ratCount - 1);
             UpdateCollider();
+        }
+
+        public void SetRats(int count = 1)
+        {
+            if (_ratCount == count)
+                return;
+            OnRatsChanged?.Invoke(_ratCount);
+            _ratCount = count;
         }
 
         private void UpdateCollider()

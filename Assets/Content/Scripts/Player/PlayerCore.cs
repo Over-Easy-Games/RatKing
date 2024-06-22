@@ -25,8 +25,14 @@ namespace Content.Scripts.Player
             
             if (TryGetComponent<PlayerRatPack>(out PlayerRatPack playerRatPack))
                 _playerRatPack = playerRatPack;
+            _playerRatPack.OnRatsChanged += PlayerRatPackOnOnRatsChanged;
         }
-        
+
+        private void PlayerRatPackOnOnRatsChanged(int newRatCount)
+        {
+            _playerMovement.SetRatCount(newRatCount);
+        }
+
         void Update()
         {
             // This is temporary to make it so that WASD isn't smoothed.
