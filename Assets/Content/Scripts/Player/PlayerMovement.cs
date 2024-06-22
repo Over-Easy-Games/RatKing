@@ -62,7 +62,9 @@ namespace Content.Scripts.Player
             float speedMultiplier = speed * ( 1.0f / Mathf.Max(1.0f, (float)_LocalRatCount) );
             Vector3 currentForward = physicsRoot.forward * _moveInput.magnitude * speedMultiplier;
 
-            float rate = (_moveInput == Vector2.zero) ? decelerationRate : accelerationRate;
+            float decelerationRateMultiplied = decelerationRate / Mathf.Max(1.0f, (float)_LocalRatCount);
+            float accelerationRateMultiplied = accelerationRate / Mathf.Max(1.0f, (float)_LocalRatCount);
+            float rate = (_moveInput == Vector2.zero) ? decelerationRateMultiplied : accelerationRateMultiplied;
 
             Vector3 targetSpeed = currentForward;
             Vector3 deltaVelocity = (targetSpeed - _rigidbody.velocity) * rate;

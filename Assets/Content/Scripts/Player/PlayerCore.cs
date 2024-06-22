@@ -18,7 +18,7 @@ namespace Content.Scripts.Player
 
         [SerializeField]
         private Transform displayRoot;
-        [SerializeField, Range(0f, 1f)] private float turnSpeed = 0.2f;
+        [SerializeField, Range(0f, 1f)] private float meshTurnSpeed = 0.2f;
         
         private void Awake()
         {
@@ -58,7 +58,7 @@ namespace Content.Scripts.Player
         private void FixedUpdate()
         {
             _playerMovement.Tick();
-            displayRoot.rotation = Quaternion.Slerp(displayRoot.rotation, _playerMovement.PhysicsRoot.rotation, turnSpeed );
+            displayRoot.rotation = Quaternion.Slerp(displayRoot.rotation, _playerMovement.PhysicsRoot.rotation, meshTurnSpeed );
         }
     }
 }
