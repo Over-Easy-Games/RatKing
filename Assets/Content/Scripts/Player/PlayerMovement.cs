@@ -16,6 +16,8 @@ namespace Content.Scripts.Player
 
         [SerializeField] private float speed = 10f;
 
+        [SerializeField] private float minSpeed = 1f;
+
         [SerializeField, Range(0f, 1f)] private float accelerationRate = 0.3f;
 
         [SerializeField, Range(0f, 1f)] private float decelerationRate = 0.3f;
@@ -59,11 +61,12 @@ namespace Content.Scripts.Player
                 physicsRoot.rotation = Quaternion.Slerp(physicsRoot.rotation, targetRotation, turnSpeed);
             }
 
-            float speedMultiplier = speed * ( 1.0f / Mathf.Max(1.0f, (float)_LocalRatCount) );
+            float speedMultiplier = speed * ( 1.0f / Mathf.Max(1.0f, _LocalRatCount * 0.5f) );
+            speedMultiplier = Mathf.Max(minSpeed, speedMultiplier);
             Vector3 currentForward = physicsRoot.forward * _moveInput.magnitude * speedMultiplier;
 
-            float decelerationRateMultiplied = decelerationRate / Mathf.Max(1.0f, (float)_LocalRatCount);
-            float accelerationRateMultiplied = accelerationRate / Mathf.Max(1.0f, (float)_LocalRatCount);
+            float decelerationRateMultiplied = decelerationRate; // / Mathf.Max(1.0f, _LocalRatCount * 0.5f);
+            float accelerationRateMultiplied = accelerationRate; //  / Mathf.Max(1.0f, _LocalRatCount * 0.5f);
             float rate = (_moveInput == Vector2.zero) ? decelerationRateMultiplied : accelerationRateMultiplied;
 
             Vector3 targetSpeed = currentForward;

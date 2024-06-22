@@ -13,6 +13,7 @@ namespace Content.Scripts.Player
         private PlayerMovement _playerMovement;
         private PlayerRatPack _playerRatPack;
         private HealthComponent _healthComponent;
+        private HitboxComponent _hitboxComponent;
         
         private Vector2 _moveInput;
 
@@ -33,6 +34,9 @@ namespace Content.Scripts.Player
                 _healthComponent = healthComponent;
             _healthComponent.OnHealthChanged += HealthComponentOnOnHealthChanged;
             _healthComponent.OnHealthEmpty += HealthComponentOnOnHealthEmpty;
+            
+            _hitboxComponent = GetComponentInChildren<HitboxComponent>();
+            _hitboxComponent.OnHit += HitboxComponentOnOnHit;
         }
 
         private void PlayerRatPackOnOnRatsChanged(int newRatCount, int ratDelta)
@@ -53,6 +57,11 @@ namespace Content.Scripts.Player
         private void HealthComponentOnOnHealthChanged(int newHealth)
         {
             Debug.Log($"Health: {newHealth}");
+        }
+
+        private void HitboxComponentOnOnHit(int damage)
+        {
+            _playerRatPack.RemoveRat(damage);
         }
 
         private void FixedUpdate()

@@ -27,5 +27,23 @@ namespace Content.Scripts.Utilities
 
             return new Vector3(srcVector.x + newX, srcVector.y + newY, srcVector.z + newZ);
         }
+        
+        public static int GetLayerIndex(LayerMask mask)
+        {
+            int layer = mask.value;
+            if (layer == 0 || (layer & (layer - 1)) != 0)
+            {
+                Debug.LogError("No layers or multiple layers selected.");
+                return -1;
+            }
+
+            int index = 0;
+            while (layer > 1)
+            {
+                layer = layer >> 1;
+                index++;
+            }
+            return index;
+        }
     }
 }
