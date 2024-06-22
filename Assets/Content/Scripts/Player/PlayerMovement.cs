@@ -5,6 +5,7 @@ using Cinemachine.Utility;
 using UnityEditor.UIElements;
 using UnityEngine;
 using Content.Scripts.Utilities;
+using UnityEngine.InputSystem;
 
 namespace Content.Scripts.Player
 {
@@ -29,6 +30,9 @@ namespace Content.Scripts.Player
 
         
         private int _LocalRatCount = 0;
+
+        public InputActionReference moveActionRef;
+        private Vector2 _moveInput;
         
         private void Awake()
         {
@@ -36,23 +40,29 @@ namespace Content.Scripts.Player
                 _rigidbody = rb;
         }
 
-        public void Tick(Vector2 moveInput)
+        private void Update()
+        {
+            _moveInput = moveActionRef.action.ReadValue<Vector2>();
+            _moveInput = _moveInput.normalized * _moveInput.magnitude;
+        }
+
+        public void Tick()
         {
             Vector3 forward = cameraTransform.forward.ProjectOntoPlane(Vector3.up).normalized;
             Vector3 right = cameraTransform.right.ProjectOntoPlane(Vector3.up).normalized;
 
-            Vector3 targetDirection = (forward * moveInput.y + right * moveInput.x).normalized;
+            Vector3 targetDirection = (forward * _moveInput.y + right * _moveInput.x).normalized;
 
-            if (moveInput != Vector2.zero)
+            if (_moveInput != Vector2.zero)
             {
                 Quaternion targetRotation = Quaternion.LookRotation(targetDirection, Vector3.up);
                 physicsRoot.rotation = Quaternion.Slerp(physicsRoot.rotation, targetRotation, turnSpeed);
             }
 
             float speedMultiplier = speed * ( 1.0f / Mathf.Max(1.0f, (float)_LocalRatCount) );
-            Vector3 currentForward = physicsRoot.forward * moveInput.magnitude * speedMultiplier;
+            Vector3 currentForward = physicsRoot.forward * _moveInput.magnitude * speedMultiplier;
 
-            float rate = (moveInput == Vector2.zero) ? decelerationRate : accelerationRate;
+            float rate = (_moveInput == Vector2.zero) ? decelerationRate : accelerationRate;
 
             Vector3 targetSpeed = currentForward;
             Vector3 deltaVelocity = (targetSpeed - _rigidbody.velocity) * rate;
@@ -62,6 +72,16 @@ namespace Content.Scripts.Player
         public void SetRatCount(int count)
         {
             _LocalRatCount = count;
+        }
+        
+        private void OnEnable()
+        {
+            moveActionRef.action.Enable();
+        }
+
+        private void OnDisable()
+        {
+            moveActionRef.action.Disable();
         }
     }
 }

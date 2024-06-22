@@ -9,6 +9,8 @@ namespace Content.Scripts.Components
     {
         [SerializeField]
         protected int maxHealth = 10;
+        [SerializeField]
+        protected int startingHealth = 1;
         private int _currentHealth;
         
         public int MaxHealth => maxHealth;
@@ -19,7 +21,7 @@ namespace Content.Scripts.Components
 
         protected void Awake()
         {
-            _currentHealth = maxHealth;
+            _currentHealth = startingHealth;
         }
 
         public void AddHealth(int amount = 1)

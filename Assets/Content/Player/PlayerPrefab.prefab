@@ -975,6 +975,8 @@ MonoBehaviour:
   cameraTransform: {fileID: 0}
   physicsRoot: {fileID: 6296167278807250864}
   turnSpeed: 1
+  moveActionRef: {fileID: -7715263616687584809, guid: dfc48cde67a5a204d80f4b4e39c8bcd6,
+    type: 3}
 --- !u!114 &1145561127790907696
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -988,6 +990,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   physicsCollider: {fileID: 442072834601240083}
+  addRatActionRef: {fileID: 7362161883656581234, guid: dfc48cde67a5a204d80f4b4e39c8bcd6,
+    type: 3}
+  removeRatActionRef: {fileID: -2905802150466569868, guid: dfc48cde67a5a204d80f4b4e39c8bcd6,
+    type: 3}
 --- !u!114 &1674037610690080145
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1000,7 +1006,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62a6ce2f8ff1a33408e1cc9804807e9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 10
+  maxHealth: 100
+  startingHealth: 1
 --- !u!54 &5952908766449588814
 Rigidbody:
   m_ObjectHideFlags: 0

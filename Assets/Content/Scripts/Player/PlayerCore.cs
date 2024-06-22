@@ -35,9 +35,14 @@ namespace Content.Scripts.Player
             _healthComponent.OnHealthEmpty += HealthComponentOnOnHealthEmpty;
         }
 
-        private void PlayerRatPackOnOnRatsChanged(int newRatCount)
+        private void PlayerRatPackOnOnRatsChanged(int newRatCount, int ratDelta)
         {
             _playerMovement.SetRatCount(newRatCount);
+            
+            if (ratDelta > 0)
+                _healthComponent.AddHealth(ratDelta);
+            else
+                _healthComponent.RemoveHealth( Math.Abs(ratDelta) );
         }
 
         private void HealthComponentOnOnHealthEmpty()
@@ -50,47 +55,9 @@ namespace Content.Scripts.Player
             Debug.Log($"Health: {newHealth}");
         }
 
-        void Update()
-        {
-            // This is temporary to make it so that WASD isn't smoothed.
-            // _moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-            _moveInput = Vector2.zero;
-            if (Input.GetKey(KeyCode.W)){
-                _moveInput.y += 1f;
-            }
-            if (Input.GetKey(KeyCode.S)){
-                _moveInput.y -= 1f;
-            }
-            if (Input.GetKey(KeyCode.D)){
-                _moveInput.x += 1f;
-            }
-            if (Input.GetKey(KeyCode.A)){
-                _moveInput.x -= 1f;
-            }
-
-            _moveInput = _moveInput.normalized * _moveInput.magnitude;
-            
-            // Temp set up to debug growing and shrinking physics collider.
-            if (Input.GetKeyDown(KeyCode.E)){
-                _playerRatPack.AddRat();
-            }
-            if (Input.GetKeyDown(KeyCode.Q)){
-                _playerRatPack.RemoveRat();
-            }
-            
-            // Temp set up to debug health.
-            if (Input.GetKeyDown(KeyCode.R)){
-                _healthComponent.AddHealth(1);
-            }
-            if (Input.GetKeyDown(KeyCode.F)){
-                _healthComponent.RemoveHealth(1);
-            }
-            
-        }
-
         private void FixedUpdate()
         {
-            _playerMovement.Tick( _moveInput );
+            _playerMovement.Tick();
             displayRoot.rotation = Quaternion.Slerp(displayRoot.rotation, _playerMovement.PhysicsRoot.rotation, turnSpeed );
         }
     }
