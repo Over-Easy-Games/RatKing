@@ -17,7 +17,7 @@ MonoBehaviour:
   lifetime: 1
   gravity: {x: 0, y: 0, z: 0}
   acceleration: {x: 0, y: 0, z: 0}
-  destroyOnTimeout: 1
+  destroyOnTimeout: 0
   destroyOnPhysicsCollision: 0
   destroyOnHitboxCollision: 0
   destroyOnHurtboxCollision: 0

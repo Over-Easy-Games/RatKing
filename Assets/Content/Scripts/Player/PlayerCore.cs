@@ -14,7 +14,7 @@ namespace Content.Scripts.Player
         private PlayerMovement _playerMovement;
         private PlayerRatPack _playerRatPack;
         private HealthComponent _healthComponent;
-        private HitboxComponent _hitboxComponent;
+        private HurtboxComponent _hurtboxComponent;
         private PlayerRatGun _ratGun;
         
         private Vector2 _moveInput;
@@ -37,8 +37,8 @@ namespace Content.Scripts.Player
             _healthComponent.OnHealthChanged += HealthComponentOnOnHealthChanged;
             _healthComponent.OnHealthEmpty += HealthComponentOnOnHealthEmpty;
             
-            _hitboxComponent = GetComponentInChildren<HitboxComponent>(); 
-            _hitboxComponent.OnHit += HitboxComponentOnOnHit;
+            _hurtboxComponent = GetComponentInChildren<HurtboxComponent>(); 
+            _hurtboxComponent.OnHit += HurtboxComponentOnOnHit;
             
             if (TryGetComponent<PlayerRatGun>(out PlayerRatGun ratGun))
                 _ratGun = ratGun;
@@ -64,7 +64,7 @@ namespace Content.Scripts.Player
             Debug.Log($"Health: {newHealth}");
         }
 
-        private void HitboxComponentOnOnHit(int damage)
+        private void HurtboxComponentOnOnHit(int damage)
         {
             if (damage > 0)
                 _playerRatPack.RemoveRat(damage);

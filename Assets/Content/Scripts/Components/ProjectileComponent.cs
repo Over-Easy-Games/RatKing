@@ -14,27 +14,27 @@ namespace Content.Scripts.Components
         protected event Action Timeout;
 
         protected Rigidbody rb;
-        protected HitboxComponent _hitboxComponent;
         protected HurtboxComponent _hurtboxComponent;
+        protected HitboxComponent _hitboxComponent;
         
         protected float lifetime;
         protected Vector3 gravity;
         protected Vector3 acceleration;
         protected bool destroyOnTimeout;
         protected bool destroyOnPhysicsCollision;
-        protected bool destroyOnHitboxCollision;
         protected bool destroyOnHurtboxCollision;
+        protected bool destroyOnHitboxCollision;
 
         private void Awake()
         {
             Timeout += OnTimeout;
             rb = GetComponent<Rigidbody>();
             
-            _hitboxComponent = GetComponentInChildren<HitboxComponent>();
-            _hitboxComponent.OnHit += HitboxComponentOnHit;
-            
             _hurtboxComponent = GetComponentInChildren<HurtboxComponent>();
-            _hurtboxComponent.OnHit += HurtboxComponentOnOnHit;
+            _hurtboxComponent.OnHit += HurtboxComponentOnHit;
+            
+            _hitboxComponent = GetComponentInChildren<HitboxComponent>();
+            _hitboxComponent.OnHit += HitboxComponentOnOnHit;
         }
 
         public void Init(ProjectileData projectileData, Vector3 startingVelocity, LauncherComponent.LauncherTeam launcherTeam)
@@ -44,20 +44,20 @@ namespace Content.Scripts.Components
             acceleration = projectileData.acceleration;
             destroyOnTimeout = projectileData.destroyOnTimeout;     
             destroyOnPhysicsCollision = projectileData.destroyOnPhysicsCollision;
-            destroyOnHitboxCollision = projectileData.destroyOnHitboxCollision;
             destroyOnHurtboxCollision = projectileData.destroyOnHurtboxCollision;
+            destroyOnHitboxCollision = projectileData.destroyOnHitboxCollision;
             
             currentVelocity = startingVelocity;
 
             if (launcherTeam == LauncherComponent.LauncherTeam.Player)
             {
-                _hitboxComponent.SetLayers(LayerMask.GetMask("PlayerHitbox"), LayerMask.GetMask("EnemyHurtbox") );
                 _hurtboxComponent.SetLayers(LayerMask.GetMask("PlayerHurtbox"), LayerMask.GetMask("EnemyHitbox") );
+                _hitboxComponent.SetLayers(LayerMask.GetMask("PlayerHitbox"), LayerMask.GetMask("EnemyHurtbox") );
             }
             else
             {
-                _hitboxComponent.SetLayers(LayerMask.GetMask("EnemyHitbox"), LayerMask.GetMask("PlayerHurtbox") );
                 _hurtboxComponent.SetLayers(LayerMask.GetMask("EnemyHurtbox"), LayerMask.GetMask("PlayerHitbox") );
+                _hitboxComponent.SetLayers(LayerMask.GetMask("EnemyHitbox"), LayerMask.GetMask("PlayerHurtbox") );
             }
         }
         
@@ -67,15 +67,15 @@ namespace Content.Scripts.Components
                 Destroy(gameObject);
         }
 
-        private void HitboxComponentOnHit(int damage)
+        private void HurtboxComponentOnHit(int damage)
         {
-            if (destroyOnHitboxCollision)
+            if (destroyOnHurtboxCollision)
                 Destroy(gameObject);
         }
 
-        private void HurtboxComponentOnOnHit()
+        private void HitboxComponentOnOnHit()
         {
-            if (destroyOnHurtboxCollision)
+            if (destroyOnHitboxCollision)
                 Destroy(gameObject);
         }
 

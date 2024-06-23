@@ -13,7 +13,12 @@ namespace Content.Scripts.Components
         [SerializeField] 
         private LayerMask hitboxMask;
         
-        public event Action<int> OnHit;
+        public event Action OnHit;
+
+        [SerializeField] 
+        private int damage = 5;
+
+        public int Damage => damage;
         
         protected override void Awake()
         {
@@ -25,9 +30,7 @@ namespace Content.Scripts.Components
         protected override void OnTriggerEnter(Collider other)
         {
             base.OnTriggerEnter(other);
-            int hurtboxDamage = other.GetComponent<HurtboxComponent>().Damage;
-            OnHit?.Invoke(hurtboxDamage);
-            
+            OnHit?.Invoke();
         }
     }
 }

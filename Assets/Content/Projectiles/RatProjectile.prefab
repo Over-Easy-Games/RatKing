@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8827313722975385647}
   - component: {fileID: 2321388687525051545}
   m_Layer: 0
-  m_Name: Hurtbox
+  m_Name: Hitbox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -45,10 +45,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2f6ca744a0a4be6b120ae624817967a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hurtboxLayer:
+  hitboxLayer:
     serializedVersion: 2
     m_Bits: 0
-  hurtboxMask:
+  hitboxMask:
     serializedVersion: 2
     m_Bits: 0
   damage: 5
@@ -233,7 +233,7 @@ GameObject:
   - component: {fileID: 3536623610732161574}
   - component: {fileID: 7249904336272610498}
   m_Layer: 0
-  m_Name: Hitbox
+  m_Name: Hurtbox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -266,10 +266,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5d2b954165b42cdbea92a6e52bc1ec6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitboxLayer:
+  hurtboxLayer:
     serializedVersion: 2
     m_Bits: 0
-  hitboxMask:
+  hurtboxMask:
     serializedVersion: 2
     m_Bits: 0
 --- !u!135 &7249904336272610498
