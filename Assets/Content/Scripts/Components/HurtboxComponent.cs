@@ -23,8 +23,8 @@ namespace Content.Scripts.Components
         protected override void Awake()
         {
             base.Awake();
-            triggerCollider.includeLayers = triggerCollider.includeLayers | hurtboxMask;
-            gameObject.layer = StaticHelpers.GetLayerIndex(hurtboxLayer);
+            if (hurtboxLayer.value > 0 && hurtboxMask.value > 0)
+                SetLayers(hurtboxLayer, triggerCollider.includeLayers | hurtboxMask);
         }
 
         protected override void OnTriggerEnter(Collider other)

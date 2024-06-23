@@ -18,8 +18,8 @@ namespace Content.Scripts.Components
         protected override void Awake()
         {
             base.Awake();
-            triggerCollider.includeLayers = triggerCollider.includeLayers | hitboxMask;
-            gameObject.layer = StaticHelpers.GetLayerIndex(hitboxLayer);
+            if (hitboxLayer.value > 0 && hitboxMask.value > 0)
+                SetLayers(hitboxLayer, triggerCollider.includeLayers | hitboxMask);
         }
 
         protected override void OnTriggerEnter(Collider other)

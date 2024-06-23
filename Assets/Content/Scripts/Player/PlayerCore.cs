@@ -5,6 +5,7 @@ using Content.Scripts.Components;
 using UnityEditor.UIElements;
 using UnityEngine;
 using Content.Scripts.Utilities;
+using UnityEngine.InputSystem;
 
 namespace Content.Scripts.Player
 {
@@ -14,6 +15,7 @@ namespace Content.Scripts.Player
         private PlayerRatPack _playerRatPack;
         private HealthComponent _healthComponent;
         private HitboxComponent _hitboxComponent;
+        private PlayerRatGun _ratGun;
         
         private Vector2 _moveInput;
 
@@ -35,8 +37,11 @@ namespace Content.Scripts.Player
             _healthComponent.OnHealthChanged += HealthComponentOnOnHealthChanged;
             _healthComponent.OnHealthEmpty += HealthComponentOnOnHealthEmpty;
             
-            _hitboxComponent = GetComponentInChildren<HitboxComponent>();
+            _hitboxComponent = GetComponentInChildren<HitboxComponent>(); 
             _hitboxComponent.OnHit += HitboxComponentOnOnHit;
+            
+            if (TryGetComponent<PlayerRatGun>(out PlayerRatGun ratGun))
+                _ratGun = ratGun;
         }
 
         private void PlayerRatPackOnOnRatsChanged(int newRatCount, int ratDelta)

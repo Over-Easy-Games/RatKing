@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Content.Scripts.Utilities;
 
 namespace Content.Scripts.Components
 {
@@ -34,6 +35,12 @@ namespace Content.Scripts.Components
         protected virtual void OnTriggerExit(Collider other)
         {
             TriggerExit?.Invoke(other);
+        }
+
+        public void SetLayers(LayerMask layer, LayerMask mask)
+        {
+            gameObject.layer = StaticHelpers.GetLayerIndex(layer);
+            triggerCollider.includeLayers = mask;
         }
         
     }
