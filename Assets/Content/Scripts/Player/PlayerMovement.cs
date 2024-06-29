@@ -30,6 +30,7 @@ namespace Content.Scripts.Player
 
         [SerializeField, Range(0f, 1f)] private float turnSpeed = 1.0f;
 
+        [SerializeField] private Vector3 gravity = Vector3.down * 9.8f;
         
         private int _LocalRatCount = 0;
 
@@ -72,6 +73,7 @@ namespace Content.Scripts.Player
             Vector3 targetSpeed = currentForward;
             Vector3 deltaVelocity = (targetSpeed - _rigidbody.velocity) * rate;
             _rigidbody.AddForce(deltaVelocity, ForceMode.VelocityChange);
+            _rigidbody.AddForce(gravity, ForceMode.Force);
         }
 
         public void SetRatCount(int count)
