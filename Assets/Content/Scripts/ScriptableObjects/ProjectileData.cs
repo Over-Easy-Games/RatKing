@@ -15,6 +15,7 @@ namespace Content.ScriptableObjects
         public bool destroyOnPhysicsCollision;
         public bool destroyOnHitboxCollision;
         public bool destroyOnHurtboxCollision;
+        public float drag = 0.0f;
     }
     
 }

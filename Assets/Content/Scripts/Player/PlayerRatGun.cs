@@ -14,11 +14,20 @@ namespace Content.Scripts.Player
 
         public InputActionReference shootActionRef;
 
+        [SerializeField] private float launchSpeed = 20.0f;
+
+        [SerializeField] private float launchAngle = 45.0f;
+        
         private void Awake()
         {
-            shootActionRef.action.performed += context => { Launch(); };
+            shootActionRef.action.performed += OnLaunch;
         }
 
+        private void OnLaunch(InputAction.CallbackContext context)
+        {
+            Launch( new LaunchParameters( direction: Quaternion.AngleAxis(-launchAngle, spawnLocation.right) * spawnLocation.forward, speed: launchSpeed ) );
+        }
+        
         private void OnEnable()
         {
             shootActionRef.action.Enable();

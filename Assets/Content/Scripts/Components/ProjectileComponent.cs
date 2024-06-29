@@ -24,6 +24,7 @@ namespace Content.Scripts.Components
         protected bool destroyOnPhysicsCollision;
         protected bool destroyOnHurtboxCollision;
         protected bool destroyOnHitboxCollision;
+        protected float drag;
 
         private void Awake()
         {
@@ -46,8 +47,11 @@ namespace Content.Scripts.Components
             destroyOnPhysicsCollision = projectileData.destroyOnPhysicsCollision;
             destroyOnHurtboxCollision = projectileData.destroyOnHurtboxCollision;
             destroyOnHitboxCollision = projectileData.destroyOnHitboxCollision;
+            drag = projectileData.drag;
             
             currentVelocity = startingVelocity;
+            rb.AddForce(currentVelocity, ForceMode.VelocityChange);
+            rb.drag = drag;
 
             if (launcherTeam == LauncherComponent.LauncherTeam.Player)
             {
@@ -98,10 +102,9 @@ namespace Content.Scripts.Components
             Tick();
         }
 
-        private void Tick()
+        protected virtual void Tick()
         {
-            rb.velocity = currentVelocity + gravity;
-            // kinematic or physics or raycast
+            rb.AddForce(gravity, ForceMode.Force);
         }
     }
 }

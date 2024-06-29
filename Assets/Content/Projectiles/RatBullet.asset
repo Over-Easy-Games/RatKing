@@ -14,10 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   projectilePrefab: {fileID: 807918280276831510, guid: c5e86a250ccb9254eb6494a446837670,
     type: 3}
-  lifetime: 1
-  gravity: {x: 0, y: 0, z: 0}
+  lifetime: 5
+  gravity: {x: 0, y: -20, z: 0}
   acceleration: {x: 0, y: 0, z: 0}
-  destroyOnTimeout: 0
+  destroyOnTimeout: 1
   destroyOnPhysicsCollision: 0
   destroyOnHitboxCollision: 0
   destroyOnHurtboxCollision: 0
+  drag: 1
