@@ -17,17 +17,24 @@ namespace Content.Scripts.Player
         [SerializeField] private float launchSpeed = 20.0f;
 
         [SerializeField] private float launchAngle = 45.0f;
-        
+
+        public event Action OnTryShoot;
+
         private void Awake()
         {
-            shootActionRef.action.performed += OnLaunch;
+            shootActionRef.action.performed += OnShootPerformed;
         }
 
-        private void OnLaunch(InputAction.CallbackContext context)
+        public void OnShootPerformed(InputAction.CallbackContext context)
         {
-            Launch( new LaunchParameters( direction: Quaternion.AngleAxis(-launchAngle, spawnLocation.right) * spawnLocation.forward, speed: launchSpeed ) );
+            OnTryShoot?.Invoke();
         }
-        
+
+        public override void Launch(LaunchParameters launchParameters = default)
+        {
+            base.Launch( new LaunchParameters( direction: Quaternion.AngleAxis(-launchAngle, spawnLocation.right) * spawnLocation.forward, speed: launchSpeed ) );
+        }
+
         private void OnEnable()
         {
             shootActionRef.action.Enable();

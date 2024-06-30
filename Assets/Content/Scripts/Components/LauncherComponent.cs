@@ -32,7 +32,7 @@ namespace Content.Scripts.Components
         [SerializeField]
         protected LauncherTeam launcherTeam;
         
-        public void Launch(LaunchParameters launchParameters = default)
+        public virtual void Launch(LaunchParameters launchParameters = default)
         {
             if (launchParameters == null)
             {

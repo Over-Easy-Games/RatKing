@@ -42,6 +42,17 @@ namespace Content.Scripts.Player
             
             if (TryGetComponent<PlayerRatGun>(out PlayerRatGun ratGun))
                 _ratGun = ratGun;
+            _ratGun.OnTryShoot += OnTryShoot;
+        }
+
+        private void OnTryShoot()
+        {
+            if (_playerRatPack.RatCount <= 0){
+                return;
+            }
+            
+            _ratGun.Launch();
+            _playerRatPack.RemoveRat();
         }
 
         private void PlayerRatPackOnOnRatsChanged(int newRatCount, int ratDelta)
