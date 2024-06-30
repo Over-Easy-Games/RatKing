@@ -17,18 +17,16 @@ public class PointDistributor : MonoBehaviour
 
     private Matrix4x4[] matrices;
     
-    struct TriangleSample
+    struct PointSample
     {
+        public PointSample(Vector3 _pos, Vector3 _normal)
+        {
+            position = _pos;
+            normal = _normal;
+        }
+        
         public Vector3 position;
         public Vector3 normal;
-        public Vector3 tangent;
-    }
-    
-    struct Vertex
-    {
-        public Vector3 position;
-        public Vector3 normal;
-        public Vector3 tangent;
     }
 
     private List<Matrix4x4> _points = new List<Matrix4x4>();
@@ -47,6 +45,7 @@ public class PointDistributor : MonoBehaviour
 
         _mesh = _meshFilter.sharedMesh;
         Vector3[] vertices = _mesh.vertices;
+        Vector3[] normals = _mesh.normals;
         int[] triangles = _mesh.triangles;
 
         
@@ -78,12 +77,19 @@ public class PointDistributor : MonoBehaviour
             Vector3 v0 = vertices[triangles[triangleIndex * 3]];
             Vector3 v1 = vertices[triangles[triangleIndex * 3 + 1]];
             Vector3 v2 = vertices[triangles[triangleIndex * 3 + 2]];
+            Vector3 n0 = normals[triangles[triangleIndex * 3]];
+            Vector3 n1 = normals[triangles[triangleIndex * 3 + 1]];
+            Vector3 n2 = normals[triangles[triangleIndex * 3 + 2]];
 
-            Vector3 pointPosition = SamplePointOnTriangle(v0, v1, v2) + _meshFilter.transform.position;
-            Quaternion pointRotation = Quaternion.identity;
+            PointSample vertex0 = new PointSample(v0 + _meshFilter.transform.position, n0);
+            PointSample vertex1 = new PointSample(v1 + _meshFilter.transform.position, n1);
+            PointSample vertex2 = new PointSample(v2 + _meshFilter.transform.position, n2);
+
+            PointSample pointSample = SamplePointOnTriangle(vertex0, vertex1, vertex2);
+            Quaternion pointRotation = Quaternion.LookRotation(pointSample.normal, Vector3.up);
             Vector3 pointScale = Vector3.one * debugSizeValue;
 
-            Matrix4x4 matrix = Matrix4x4.TRS(pointPosition, pointRotation, pointScale);
+            Matrix4x4 matrix = Matrix4x4.TRS(pointSample.position, pointRotation, pointScale);
             _points.Add(matrix);
         }
         
@@ -114,7 +120,7 @@ public class PointDistributor : MonoBehaviour
         return cumulativeAreas.Count - 1;
     }
 
-    private Vector3 SamplePointOnTriangle(Vector3 v0, Vector3 v1, Vector3 v2)
+    private PointSample SamplePointOnTriangle(PointSample v0, PointSample v1, PointSample v2)
     {
         float sqrtR1 = Mathf.Sqrt(UnityEngine.Random.value);
         float r2 = UnityEngine.Random.value;
@@ -123,9 +129,10 @@ public class PointDistributor : MonoBehaviour
         float b = sqrtR1 * (1 - r2);
         float c = sqrtR1 * r2;
 
-        Vector3 pointInsideTriangle = a * v0 + b * v1 + c * v2;
+        Vector3 pointInsideTriangle = a * v0.position + b * v1.position + c * v2.position;
+        Vector3 normalInsideTriangle = a * v0.normal + b * v1.normal + c * v2.normal;
 
-        return pointInsideTriangle;
+        return new PointSample(pointInsideTriangle, normalInsideTriangle);
     }
 
     private void OnValidate()
