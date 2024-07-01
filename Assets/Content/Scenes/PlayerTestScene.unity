@@ -4024,7 +4024,6 @@ GameObject:
   - component: {fileID: 1784017313}
   - component: {fileID: 1784017312}
   - component: {fileID: 1784017311}
-  - component: {fileID: 1784017310}
   - component: {fileID: 1784017309}
   m_Layer: 0
   m_Name: Capsule
@@ -4046,35 +4045,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   totalPoints: 100
-  debugSizeValue: 0.16
-  debugSpeed: 0.001
   meshToInstance: {fileID: -2432090755550338912, guid: e6cab776c9fb34440aa39e43fde68569,
     type: 3}
   material: {fileID: 2100000, guid: 20d78cc9d142e9c488b947b814eaaf9c, type: 2}
-  orientationVector: {x: 0, y: 1, z: 0}
---- !u!136 &1784017310
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1784017308}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
+  debugSizeValue: 0.16
+  debugSpeed: 0.001
+  drawGizmo: 0
+  drawMeshes: 1
 --- !u!23 &1784017311
 MeshRenderer:
   m_ObjectHideFlags: 0
