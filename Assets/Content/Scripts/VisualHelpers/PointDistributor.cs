@@ -210,14 +210,33 @@ public class PointDistributor : MonoBehaviour
             System.Random rand = new System.Random();
             float distanceToTarget = Vector3.Distance(currentPosition, targetPosition);
             if (distanceToTarget < 0.1f){
-                _instanceTargetIndices[matrixIndex] = rand.Next() % _possibleTargets.Length;
+                // _instanceTargetIndices[matrixIndex] = rand.Next() % _possibleTargets.Length;
+
+                int currentTargetIndex = _instanceTargetIndices[matrixIndex];
+                int newTargetIndex = -1;
+
+                if (HasAdjacentVertices(currentTargetIndex)){
+                    while (newTargetIndex == -1){
+                        int possibleNewTargetIndex = rand.Next() % _possibleTargets.Length;
+                        if (_meshVertexAdjacency[currentTargetIndex, possibleNewTargetIndex])
+                            newTargetIndex = possibleNewTargetIndex;
+                    }
+                }
                 
-                // int newTargetIndex = 0;
-                // _instanceTargetIndices[matrixIndex] = newTargetIndex;
+                _instanceTargetIndices[matrixIndex] = newTargetIndex;
             }
             
         }
             
+    }
+
+    private bool HasAdjacentVertices(int srcIndex)
+    {
+        for (int columnIndex = 0; columnIndex < _meshVertexAdjacency.GetLength(0); columnIndex++){
+            if (_meshVertexAdjacency[srcIndex, columnIndex])
+                return true;
+        }
+        return false;
     }
     
     private int FindTriangleIndex(List<float> cumulativeAreas, float value)
