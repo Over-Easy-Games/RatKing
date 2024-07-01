@@ -10,12 +10,13 @@ public class PointDistributor : MonoBehaviour
     private MeshFilter _meshFilter;
     private Mesh _mesh;
 
-    [SerializeField] private int totalPoints = 1000;
-    [SerializeField] private float debugSizeValue = 1.0f;
-    [SerializeField] private float debugSpeed = 0.05f;
+    [SerializeField] private int totalPoints = 100;
     [SerializeField] private Mesh meshToInstance; 
     [SerializeField] private Material material;
-    [SerializeField] private Vector3 orientationVector = Vector3.up; 
+    [SerializeField] private float debugSizeValue = 0.2f;
+    [SerializeField] private float debugSpeed = 0.01f;
+    [SerializeField] private bool drawGizmo = false;
+    [SerializeField] private bool drawMeshes = true;
 
     private Matrix4x4[] matrices;
     
@@ -120,7 +121,7 @@ public class PointDistributor : MonoBehaviour
             Vertex vertex2 = new Vertex(v2 + positionOffset, n2);
 
             Vertex randomSample = new Triangle(vertex0, vertex1, vertex2).SampleRandomPointOnTriangle();
-            Quaternion pointRotation = Quaternion.LookRotation(randomSample.normal, orientationVector);
+            Quaternion pointRotation = Quaternion.LookRotation(randomSample.normal, Vector3.up);
             Vector3 pointScale = Vector3.one * debugSizeValue;
 
             Matrix4x4 matrix = Matrix4x4.TRS(randomSample.position, pointRotation, pointScale);
@@ -140,7 +141,7 @@ public class PointDistributor : MonoBehaviour
     private void Update()
     {
         UpdatePositions();
-        if (meshToInstance != null && material != null)
+        if (meshToInstance != null && material != null && drawMeshes)
         {
             Graphics.DrawMeshInstanced(meshToInstance, 0, material, matrices);
         }
@@ -157,7 +158,7 @@ public class PointDistributor : MonoBehaviour
             Vector3 velocity = (targetPosition - currentPosition).normalized * debugSpeed;
             
             // Quaternion currentRotation = currentMatrix.rotation;
-            Quaternion currentRotation = Quaternion.LookRotation(velocity, orientationVector);
+            Quaternion currentRotation = Quaternion.LookRotation(velocity, Vector3.up);
 
             currentMatrix.SetTRS( currentPosition + velocity, currentRotation, Vector3.one * debugSizeValue );
             matrices[matrixIndex] = currentMatrix;
@@ -185,37 +186,31 @@ public class PointDistributor : MonoBehaviour
         return cumulativeAreas.Count - 1;
     }
 
-    private Vertex SamplePointOnTriangle(Triangle triangle)
-    {
-        float sqrtR1 = Mathf.Sqrt(UnityEngine.Random.value);
-        float r2 = UnityEngine.Random.value;
-
-        float a = 1 - sqrtR1;
-        float b = sqrtR1 * (1 - r2);
-        float c = sqrtR1 * r2;
-
-        Vector3 pointInsideTriangle = a * triangle.v0.position + b * triangle.v1.position + c * triangle.v2.position;
-        Vector3 normalInsideTriangle = a * triangle.v0.normal + b * triangle.v1.normal + c * triangle.v2.normal;
-
-        return new Vertex(pointInsideTriangle, normalInsideTriangle);
-    }
-
     private void OnValidate()
     {
         Generate();
     }
 
-    // private void OnDrawGizmos()
-    // {
-    //     if (_points == null) 
-    //         return;
-    //
-    //     foreach (var point in _points)
-    //     {
-    //         Gizmos.color = Color.yellow;
-    //         Gizmos.DrawSphere(point.position, point.scale.x * debugSizeValue);
-    //     }
-    // }
+    private void OnDrawGizmos()
+    {
+        if (!drawGizmo)
+            return;
+        
+        if (_points == null) 
+            return;
+    
+        foreach (var instance in matrices)
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawSphere(instance.GetPosition(), debugSizeValue);
+        }
+    
+        foreach (var point in _points)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawSphere(point.GetPosition(), debugSizeValue / 2f);
+        }
+    }
 }
 
 [CustomEditor(typeof(PointDistributor))]
