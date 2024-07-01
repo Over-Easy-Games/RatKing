@@ -12,14 +12,16 @@ public class PointDistributor : MonoBehaviour
 
     [SerializeField] private int totalPoints = 1000;
     [SerializeField] private float debugSizeValue = 1.0f;
+    [SerializeField] private float debugSpeed = 0.05f;
     [SerializeField] private Mesh meshToInstance; 
     [SerializeField] private Material material;
+    [SerializeField] private Vector3 orientationVector = Vector3.up; 
 
     private Matrix4x4[] matrices;
     
-    struct PointSample
+    struct Vertex
     {
-        public PointSample(Vector3 _pos, Vector3 _normal)
+        public Vertex(Vector3 _pos, Vector3 _normal)
         {
             position = _pos;
             normal = _normal;
@@ -28,8 +30,39 @@ public class PointDistributor : MonoBehaviour
         public Vector3 position;
         public Vector3 normal;
     }
+    
+    struct Triangle
+    {
+        public Triangle(Vertex v0, Vertex v1, Vertex v2)
+        {
+            this.v0 = v0;
+            this.v1 = v1;
+            this.v2 = v2;
+        }
+        
+        public Vertex v0;
+        public Vertex v1;
+        public Vertex v2;
+        
+        public Vertex SampleRandomPointOnTriangle()
+        {
+            float sqrtR1 = Mathf.Sqrt(UnityEngine.Random.value);
+            float r2 = UnityEngine.Random.value;
+
+            float a = 1 - sqrtR1;
+            float b = sqrtR1 * (1 - r2);
+            float c = sqrtR1 * r2;
+
+            Vector3 pointInsideTriangle = a * v0.position + b * v1.position + c * v2.position;
+            Vector3 normalInsideTriangle = a * v0.normal + b * v1.normal + c * v2.normal;
+
+            return new Vertex(pointInsideTriangle, normalInsideTriangle);
+        }
+    }
 
     private List<Matrix4x4> _points = new List<Matrix4x4>();
+    
+    private Matrix4x4[] _targets;
 
     private void Start()
     {
@@ -81,31 +114,63 @@ public class PointDistributor : MonoBehaviour
             Vector3 n1 = normals[triangles[triangleIndex * 3 + 1]];
             Vector3 n2 = normals[triangles[triangleIndex * 3 + 2]];
 
-            PointSample vertex0 = new PointSample(v0 + _meshFilter.transform.position, n0);
-            PointSample vertex1 = new PointSample(v1 + _meshFilter.transform.position, n1);
-            PointSample vertex2 = new PointSample(v2 + _meshFilter.transform.position, n2);
+            Vector3 positionOffset = _meshFilter.transform.position;
+            Vertex vertex0 = new Vertex(v0 + positionOffset, n0);
+            Vertex vertex1 = new Vertex(v1 + positionOffset, n1);
+            Vertex vertex2 = new Vertex(v2 + positionOffset, n2);
 
-            PointSample pointSample = SamplePointOnTriangle(vertex0, vertex1, vertex2);
-            Quaternion pointRotation = Quaternion.LookRotation(pointSample.normal, Vector3.up);
+            Vertex randomSample = new Triangle(vertex0, vertex1, vertex2).SampleRandomPointOnTriangle();
+            Quaternion pointRotation = Quaternion.LookRotation(randomSample.normal, orientationVector);
             Vector3 pointScale = Vector3.one * debugSizeValue;
 
-            Matrix4x4 matrix = Matrix4x4.TRS(pointSample.position, pointRotation, pointScale);
+            Matrix4x4 matrix = Matrix4x4.TRS(randomSample.position, pointRotation, pointScale);
             _points.Add(matrix);
         }
         
         matrices = new Matrix4x4[_points.Count];
+        _targets = new Matrix4x4[_points.Count];
         for (int i = 0; i < _points.Count; i++)
         {
             matrices[i] = _points[i];
+            _targets[i] = _points[ rand.Next() % _points.Count ];
         }
+        
     }
 
     private void Update()
     {
+        UpdatePositions();
         if (meshToInstance != null && material != null)
         {
             Graphics.DrawMeshInstanced(meshToInstance, 0, material, matrices);
         }
+    }
+
+    private void UpdatePositions()
+    {
+        for (int matrixIndex = 0; matrixIndex < _points.Count; matrixIndex++){
+            Matrix4x4 currentMatrix = matrices[matrixIndex];
+            
+            Vector3 currentPosition = currentMatrix.GetPosition();
+            Vector3 targetPosition = _targets[matrixIndex].GetPosition();
+
+            Vector3 velocity = (targetPosition - currentPosition).normalized * debugSpeed;
+            
+            // Quaternion currentRotation = currentMatrix.rotation;
+            Quaternion currentRotation = Quaternion.LookRotation(velocity, orientationVector);
+
+            currentMatrix.SetTRS( currentPosition + velocity, currentRotation, Vector3.one * debugSizeValue );
+            matrices[matrixIndex] = currentMatrix;
+            
+            System.Random rand = new System.Random();
+            
+            float distanceToTarget = Vector3.Distance(currentPosition, targetPosition);
+            if (distanceToTarget < 0.1f){
+                _targets[matrixIndex] = _points[ rand.Next() % _points.Count ];
+            }
+            
+        }
+            
     }
 
     private int FindTriangleIndex(List<float> cumulativeAreas, float value)
@@ -120,7 +185,7 @@ public class PointDistributor : MonoBehaviour
         return cumulativeAreas.Count - 1;
     }
 
-    private PointSample SamplePointOnTriangle(PointSample v0, PointSample v1, PointSample v2)
+    private Vertex SamplePointOnTriangle(Triangle triangle)
     {
         float sqrtR1 = Mathf.Sqrt(UnityEngine.Random.value);
         float r2 = UnityEngine.Random.value;
@@ -129,10 +194,10 @@ public class PointDistributor : MonoBehaviour
         float b = sqrtR1 * (1 - r2);
         float c = sqrtR1 * r2;
 
-        Vector3 pointInsideTriangle = a * v0.position + b * v1.position + c * v2.position;
-        Vector3 normalInsideTriangle = a * v0.normal + b * v1.normal + c * v2.normal;
+        Vector3 pointInsideTriangle = a * triangle.v0.position + b * triangle.v1.position + c * triangle.v2.position;
+        Vector3 normalInsideTriangle = a * triangle.v0.normal + b * triangle.v1.normal + c * triangle.v2.normal;
 
-        return new PointSample(pointInsideTriangle, normalInsideTriangle);
+        return new Vertex(pointInsideTriangle, normalInsideTriangle);
     }
 
     private void OnValidate()
