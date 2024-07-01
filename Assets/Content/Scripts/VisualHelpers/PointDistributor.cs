@@ -17,6 +17,8 @@ public class PointDistributor : MonoBehaviour
     [SerializeField] private float debugSpeed = 0.01f;
     [SerializeField] private bool drawGizmo = false;
     [SerializeField] private bool drawMeshes = true;
+    [SerializeField] private bool useGeneratedPoints = true;
+    [SerializeField] private float adjacencyDistance = 1.0f;
 
     private Matrix4x4[] _instanceMatrices;
     private Matrix4x4[] _possibleTargets;
@@ -25,6 +27,7 @@ public class PointDistributor : MonoBehaviour
     private List<Matrix4x4> _generatedSurfacePoints = new List<Matrix4x4>();
 
     private bool[,] _meshVertexAdjacency;
+    private bool[,] _generatedVertexAdjacency;
     
     struct Vertex
     {
@@ -105,7 +108,8 @@ public class PointDistributor : MonoBehaviour
         Vector3[] vertices = _mesh.vertices;
         Vector3[] normals = _mesh.normals;
         int[] triangles = _mesh.triangles;
-
+        
+        
         GenerateMeshVertexAdjacency(_mesh);
         
         float totalArea = 0f;
@@ -129,6 +133,7 @@ public class PointDistributor : MonoBehaviour
         }
 
         System.Random rand = new System.Random();
+        _generatedVertexAdjacency = new bool[totalPoints, totalPoints];
         for (int i = 0; i < totalPoints; i++)
         {
             float r = (float)rand.NextDouble() * totalArea;
@@ -141,9 +146,10 @@ public class PointDistributor : MonoBehaviour
             Vector3 n2 = normals[triangles[triangleIndex * 3 + 2]];
 
             Vector3 positionOffset = _meshFilter.transform.position;
-            Vertex vertex0 = new Vertex(v0 + positionOffset, n0);
-            Vertex vertex1 = new Vertex(v1 + positionOffset, n1);
-            Vertex vertex2 = new Vertex(v2 + positionOffset, n2);
+            Vector3 scaleOffset = _meshFilter.transform.localScale;
+            Vertex vertex0 = new Vertex(  Vector3.Scale(v0, scaleOffset) + positionOffset, n0);
+            Vertex vertex1 = new Vertex(Vector3.Scale(v1, scaleOffset) + positionOffset, n1);
+            Vertex vertex2 = new Vertex(Vector3.Scale(v2, scaleOffset) + positionOffset, n2);
 
             Vertex randomSample = new Triangle(vertex0, vertex1, vertex2).SampleRandomPointOnTriangle();
             Quaternion pointRotation = Quaternion.LookRotation(randomSample.normal, Vector3.up);
@@ -153,8 +159,20 @@ public class PointDistributor : MonoBehaviour
             _generatedSurfacePoints.Add(matrix);
         }
 
-        bool useGeneratedPoint = false;
-        switch(useGeneratedPoint) 
+        for (int i = 0; i < _generatedSurfacePoints.Count; i++){
+            for (int j = 0; j < _generatedSurfacePoints.Count; j++){
+
+                Matrix4x4 point1 = _generatedSurfacePoints[i];
+                Matrix4x4 point2 = _generatedSurfacePoints[j];
+                // TODO: Make adjacencyDistance based on scale
+                if (Vector3.Distance(point1.GetPosition(), point2.GetPosition()) < adjacencyDistance){
+                    _generatedVertexAdjacency[i, j] = true;
+                    _generatedVertexAdjacency[j, i] = true;
+                }
+            }
+        }
+        
+        switch(useGeneratedPoints) 
         {
             case true:
                 _possibleTargets = new Matrix4x4[_generatedSurfacePoints.Count];
@@ -165,13 +183,11 @@ public class PointDistributor : MonoBehaviour
             case false:
                 _possibleTargets = new Matrix4x4[_mesh.vertexCount];
                 for (int i = 0; i < _possibleTargets.Length; i++){
-                    _possibleTargets[i] = Matrix4x4.TRS(  _meshFilter.transform.position + _mesh.vertices[i], Quaternion.identity, Vector3.one );
+                    _possibleTargets[i] = Matrix4x4.TRS( Vector3.Scale(_mesh.vertices[i], _meshFilter.transform.localScale) + _meshFilter.transform.position, Quaternion.identity, Vector3.one );
                 }
                 break;
         }
-        
 
-        
         _instanceMatrices = new Matrix4x4[_generatedSurfacePoints.Count];
         _instanceTargetIndices = new int[_generatedSurfacePoints.Count];
         for (int i = 0; i < _instanceMatrices.Length; i++)
@@ -184,7 +200,9 @@ public class PointDistributor : MonoBehaviour
 
     private void Update()
     {
-        UpdatePositions();
+        if (debugSpeed > 0.0f)
+            UpdatePositions();
+        
         if (meshToInstance != null && material != null && drawMeshes)
         {
             Graphics.DrawMeshInstanced(meshToInstance, 0, material, _instanceMatrices);
@@ -201,8 +219,8 @@ public class PointDistributor : MonoBehaviour
 
             Vector3 velocity = (targetPosition - currentPosition).normalized * debugSpeed;
             
-            // Quaternion currentRotation = currentMatrix.rotation;
-            Quaternion currentRotation = Quaternion.LookRotation(velocity, Vector3.up);
+            Quaternion currentRotation = currentMatrix.rotation;
+            currentRotation = Quaternion.Slerp( currentRotation, Quaternion.LookRotation(velocity, Vector3.up), 0.01f);
 
             currentMatrix.SetTRS( currentPosition + velocity, currentRotation, Vector3.one * debugSizeValue );
             _instanceMatrices[matrixIndex] = currentMatrix;
@@ -210,15 +228,15 @@ public class PointDistributor : MonoBehaviour
             System.Random rand = new System.Random();
             float distanceToTarget = Vector3.Distance(currentPosition, targetPosition);
             if (distanceToTarget < 0.1f){
-                // _instanceTargetIndices[matrixIndex] = rand.Next() % _possibleTargets.Length;
 
                 int currentTargetIndex = _instanceTargetIndices[matrixIndex];
                 int newTargetIndex = -1;
 
-                if (HasAdjacentVertices(currentTargetIndex)){
+                // TODO: try to avoid going back to the last target if possible
+                if (HasAdjacentVertices(currentTargetIndex, useGeneratedPoints ? _generatedVertexAdjacency : _meshVertexAdjacency)){
                     while (newTargetIndex == -1){
                         int possibleNewTargetIndex = rand.Next() % _possibleTargets.Length;
-                        if (_meshVertexAdjacency[currentTargetIndex, possibleNewTargetIndex])
+                        if (useGeneratedPoints ? _generatedVertexAdjacency[currentTargetIndex, possibleNewTargetIndex] : _meshVertexAdjacency[currentTargetIndex, possibleNewTargetIndex])
                             newTargetIndex = possibleNewTargetIndex;
                     }
                 }
@@ -230,10 +248,10 @@ public class PointDistributor : MonoBehaviour
             
     }
 
-    private bool HasAdjacentVertices(int srcIndex)
+    private bool HasAdjacentVertices(int srcIndex, bool[,] adjMatrix )
     {
-        for (int columnIndex = 0; columnIndex < _meshVertexAdjacency.GetLength(0); columnIndex++){
-            if (_meshVertexAdjacency[srcIndex, columnIndex])
+        for (int columnIndex = 0; columnIndex < adjMatrix.GetLength(0); columnIndex++){
+            if (adjMatrix[srcIndex, columnIndex])
                 return true;
         }
         return false;
@@ -260,20 +278,29 @@ public class PointDistributor : MonoBehaviour
     {
         if (!drawGizmo)
             return;
-        
-        if (_generatedSurfacePoints == null) 
-            return;
+
+        // foreach (var instance in _instanceMatrices)
+        // {
+        //     Gizmos.color = Color.green;
+        //     Gizmos.DrawSphere(instance.GetPosition(), debugSizeValue);
+        // }
     
-        foreach (var instance in _instanceMatrices)
+        Gizmos.color = Color.yellow;
+        foreach (var point in _possibleTargets)
         {
-            Gizmos.color = Color.green;
-            Gizmos.DrawSphere(instance.GetPosition(), debugSizeValue);
+            Gizmos.DrawSphere(point.GetPosition(), debugSizeValue / 2f);
         }
     
-        foreach (var point in _generatedSurfacePoints)
-        {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawSphere(point.GetPosition(), debugSizeValue / 2f);
+        Gizmos.color = Color.green;
+
+        bool[,] adjMatrix = useGeneratedPoints ? _generatedVertexAdjacency : _meshVertexAdjacency;
+        
+        for (int i = 0; i < adjMatrix.GetLength(0); i++){
+            for (int j = 0; j < adjMatrix.GetLength(1); j++){
+                if (adjMatrix[i, j] || adjMatrix[j, i]){
+                    Gizmos.DrawLine( _possibleTargets[i].GetPosition(), _possibleTargets[j].GetPosition() );
+                }
+            }
         }
     }
 }
