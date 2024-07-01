@@ -134,6 +134,8 @@ public class PointDistributor : MonoBehaviour
 
         System.Random rand = new System.Random();
         _generatedVertexAdjacency = new bool[totalPoints, totalPoints];
+        // TODO: Untie totalPoints from generated points and generated meshes
+        // TODO: Add in value to determine how randomly points are placed, try to get them evenly place across the mesh
         for (int i = 0; i < totalPoints; i++)
         {
             float r = (float)rand.NextDouble() * totalArea;
