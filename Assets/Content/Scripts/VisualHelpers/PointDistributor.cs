@@ -165,6 +165,7 @@ public class PointDistributor : MonoBehaviour
                 Matrix4x4 point1 = _generatedSurfacePoints[i];
                 Matrix4x4 point2 = _generatedSurfacePoints[j];
                 // TODO: Make adjacencyDistance based on scale
+                // TODO: Consider determining adjacency based on the parent verts that generated the points
                 if (Vector3.Distance(point1.GetPosition(), point2.GetPosition()) < adjacencyDistance){
                     _generatedVertexAdjacency[i, j] = true;
                     _generatedVertexAdjacency[j, i] = true;
